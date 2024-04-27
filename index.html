@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browser Tab System</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Simple Browser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="tabs-container" class="container d-flex flex-row">
+    <div id="tabs-container">
         <!-- Tabs will be dynamically added here -->
+        <div id="add-tab-btn" class="tab"><i class="fas fa-plus"></i></div>
     </div>
-    <div class="container mt-3">
-        <button id="add-tab-btn" class="btn btn-primary">+</button>
+    <div id="browser-bar">
+        <div id="tab-titles"></div>
+        <div id="nav-buttons">
+            <button id="back-button" class="nav-button"><i class="fas fa-chevron-left"></i></button>
+            <button id="forward-button" class="nav-button"><i class="fas fa-chevron-right"></i></button>
+            <button id="reload-button" class="nav-button"><i class="fas fa-sync"></i></button>
+            <button id="home-button" class="nav-button"><i class="fas fa-home"></i></button>
+        </div>
+        <input id="search-input" type="text" placeholder="Search...">
     </div>
-    <div id="iframes-container" class="container mt-3">
-        <!-- Iframes will be dynamically added here -->
+    <div id="iframe-container">
+        
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

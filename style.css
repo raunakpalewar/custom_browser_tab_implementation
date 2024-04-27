@@ -1,6 +1,74 @@
-#iframes-container{
-    height: 500px;
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#tabs-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tab {
+    display: inline-block;
+    padding: 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.tab.active {
+    background-color: #f0f0f0;
+}
+
+#browser-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+}
+
+#tab-titles {
+    flex-grow: 1;
+    display: flex;
+}
+
+#tab-titles .tab-title {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+#tab-titles .tab-title.active {
+    background-color: #f0f0f0;
+}
+
+#search-input {
+    flex-grow: 1;
+    margin: 0 10px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+}
+
+#nav-buttons {
+    display: flex;
+}
+
+.nav-button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#iframe-container {
+    height: 100%; /* Set iframe container height to 100% */
+}
+
+iframe {
     width: 100%;
-    background-color: pink;
-    border:1px solid black;
+    height: 100%; /* Set iframe height to 100% */
+    border: none;
 }
