@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize an array to store tab states and titles
     const tabStates = [];
-    const tabTitles = [];
     const tabIds = []; // Array to store tab ids
     const iframes = {}; // Object to store references to iframes
 
@@ -33,7 +32,28 @@ document.addEventListener('DOMContentLoaded', function() {
         iframeContainer.appendChild(newIFrame);
         tabIds.push(newTabId); // Add the new tab id to the array
         iframes[newTabId] = newIFrame; // Store the iframe reference in the object
-        tabStates.push({ id: newTabId, steps: [], title: 'New Tab' }); // Initialize tab state
+        
+        // Get the title from the search input or use 'New Tab' as default
+        const query = searchInput.value.trim();
+        const tabTitle = query || 'New Tab';
+
+        tabStates.push({ id: newTabId, steps: [], title: tabTitle }); // Initialize tab state with title
+    
+        // Automatically navigate to the content of the newest tab iframe
+        goToNewestTab();
+    
+        // Highlight the active tab
+        highlightActiveTab();
+    }
+
+    function goToNewestTab() {
+        // Hide all iframes except the one corresponding to the newest tab
+        for (const id in iframes) {
+            iframes[id].style.display = 'none';
+        }
+        
+        const newestTabId = tabIds[tabIds.length - 1]; // Get the id of the newest tab
+        iframes[newestTabId].style.display = 'block'; // Show the iframe of the newest tab
     }
 
     function createTab(tabId) {
@@ -52,7 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             // Add the 'active' class to the clicked tab
             tab.classList.add('active');
-            
+        
+            // Highlight the active tab
+            highlightActiveTab();
+        
             // Hide all iframes except the one corresponding to the active tab
             const tabId = tab.getAttribute('data-tab-id');
             for (const id in iframes) {
@@ -62,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     iframes[id].style.display = 'none';
                 }
             }
-
+        
             // Load the previous state of the tab if it's not already loaded
             const tabState = getTabStateById(tabId);
             const iframe = iframes[tabId];
@@ -82,14 +105,18 @@ document.addEventListener('DOMContentLoaded', function() {
         iframe.style.display = 'none'; // Hide the iframe initially
         iframe.src = 'https://www.bing.com';
         iframe.setAttribute('data-tab-id', tabId); // Set the data attribute for tab id
-        iframe.setAttribute('sandbox', 'allow-same-origin');
 
-        // Listen for messages from the parent window
-        window.addEventListener('message', function(event) {
-            if (event.data === 'back') {
-                iframe.contentWindow.history.back();
-            }
-        });
+        // Add event listener to update tab title when iframe content is loaded
+        iframe.onload = function() {
+            const activeTabId = getActiveTabId();
+            const tab = tabsContainer.querySelector(`.tab[data-tab-id="${activeTabId}"]`);
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const pageTitle = iframeDoc.title;
+            tab.querySelector('span').textContent = pageTitle;
+        };
+
+        // Make sure to set the 'data-loaded' attribute to false initially
+        iframe.setAttribute('data-loaded', 'false');
 
         return iframe;
     }
@@ -103,8 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const previousStep = tabState.steps[tabState.steps.length - 1]; // Get the previous step
             iframe.src = previousStep; // Navigate to the previous step
         } else {
-            // Send a message to the iframe to trigger a back action
-            iframe.contentWindow.postMessage('back', '*');
+            iframe.contentWindow.postMessage({ action: 'goBack' }, '*'); // If no previous step, use the browser's back button
         }
     }
 
@@ -128,9 +154,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const query = searchInput.value.trim();
         const googleSearchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
         iframes[activeTabId].src = googleSearchUrl;
-        // Save the state of the tab
+        // Update the title of the tab
         const tabState = getTabStateById(activeTabId);
+        tabState.title = query || 'New Tab';
+
+        // Save the state of the tab
         tabState.steps.push(googleSearchUrl);
+    }
+    
+    // Function to highlight the active tab
+    function highlightActiveTab() {
+        const activeTabId = getActiveTabId();
+        const activeTab = document.querySelector(`.tab[data-tab-id="${activeTabId}"]`);
+        const allTabs = document.querySelectorAll('.tab');
+        allTabs.forEach(tab => tab.classList.remove('active')); // Remove 'active' class from all tabs
+        activeTab.classList.add('active'); // Add 'active' class to the active tab
     }
 
     function getActiveTabId() {
@@ -152,5 +190,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initialActiveTab) {
         const initialActiveTabId = initialActiveTab.getAttribute('data-tab-id');
         iframes[initialActiveTabId].style.display = 'block';
+    }
+
+    const addTabButton2 = document.getElementById('add-tab-btn');
+    const tabIds2 = []; // Array to store tab ids
+
+    addTabButton2.addEventListener('click', addTab);
+
+    function addTab2() {
+        const newTabId = generateTabId();
+        const newTab = createTab(newTabId);
+        tabsContainer2.appendChild(newTab);
+        tabIds2.push(newTabId); // Add the new tab id to the array
+    }
+
+    function createTab2(tabId) {
+        const tab = document.createElement('div');
+        tab.classList.add('tab');
+        tab.textContent = 'Tab ' + tabId;
+        tab.setAttribute('data-tab-id', tabId); // Set the data attribute for tab id
+        return tab;
+    }
+
+    function generateTabId2() {
+        return Math.random().toString(36).substr(2, 9);
     }
 });
