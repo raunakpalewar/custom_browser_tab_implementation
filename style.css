@@ -10,18 +10,19 @@ html, body {
     flex-wrap: nowrap; /* Prevent wrapping */
     overflow-x: auto; /* Enable horizontal scrolling */
     overflow-y: hidden; /* Hide vertical scrollbar */
-    background-color: rgb(45, 44, 44);
+    /* background-color: rgb(45, 44, 44); */
     color: whitesmoke;
+
 }
 .tab {
     padding: 7px;
     border: 0px solid transparent; /* Remove default border */
-    border-left: 1px solid white; /* White left border */
     border-right: 1px solid white; /* White right border */
     cursor: pointer;
-    height: 18px;
     max-width: 250px;
-    margin-bottom: 2px;
+    margin-bottom: 5px;
+    margin-top:6px;
+    
 }
 
 .tab.active {
@@ -85,4 +86,12 @@ iframe {
 #add-tab-btn{
     border:none;
     border-color: none!important;
+    color: white;
+    margin-left: 5px;
+}
+.d1{
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(45, 44, 44);
+    padding-left: 10px;
 }

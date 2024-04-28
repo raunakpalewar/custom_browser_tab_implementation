@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Enter') {
             search();
         }
+        
     });
+    addTab();
 
     function addTab() {
         const newTabId = generateTabId();
@@ -57,11 +59,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createTab(tabId) {
+        const allTabs = tabsContainer.querySelectorAll('.tab');
+            allTabs.forEach(function(t) {
+                t.classList.remove('active');
+            });
         const tab = document.createElement('div');
         tab.classList.add('tab');
         tab.setAttribute('data-tab-id', tabId); // Set the data attribute for tab id
+        
         const tabTitle = document.createElement('span');
         tabTitle.textContent = 'New Tab';
+        tab.classList.add('active');
+
         tab.appendChild(tabTitle);
         
         tab.addEventListener('click', function() {
@@ -156,7 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
         iframes[activeTabId].src = googleSearchUrl;
         // Update the title of the tab
         const tabState = getTabStateById(activeTabId);
-        tabState.title = query || 'New Tab';
+        console.log(tabState,query)
+        tabState.textContent = query;
 
         // Save the state of the tab
         tabState.steps.push(googleSearchUrl);
@@ -197,22 +207,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addTabButton2.addEventListener('click', addTab);
 
-    function addTab2() {
-        const newTabId = generateTabId();
-        const newTab = createTab(newTabId);
-        tabsContainer2.appendChild(newTab);
-        tabIds2.push(newTabId); // Add the new tab id to the array
-    }
-
-    function createTab2(tabId) {
-        const tab = document.createElement('div');
-        tab.classList.add('tab');
-        tab.textContent = 'Tab ' + tabId;
-        tab.setAttribute('data-tab-id', tabId); // Set the data attribute for tab id
-        return tab;
-    }
-
-    function generateTabId2() {
-        return Math.random().toString(36).substr(2, 9);
-    }
+  
 });
