@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const reloadButton = document.getElementById('reload-button');
     const homeButton = document.getElementById('home-button');
     
-    // Initialize an array to store tab states and titles
     const tabStates = [];
     const tabIds = []; // Array to store tab ids
     const iframes = {}; // Object to store references to iframes
@@ -21,8 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             search();
-        }
-        
+        }    
     });
     addTab();
 
@@ -104,13 +102,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // Add a close button to the tab
+        const closeButton = document.createElement('span');
+        closeButton.textContent = '✕';
+        closeButton.classList.add('close-button');
+        closeButton.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent tab click event from firing
+            closeTab(tabId);
+        });
+        tab.appendChild(closeButton);
+        
         return tab;
     }
 
     function createIFrame(tabId) {
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
-        iframe.style.height = 'calc(100% - 40px)'; // Adjust height for browser bar
+        iframe.style.height = '100%'; // Adjust height for browser bar
         iframe.style.display = 'none'; // Hide the iframe initially
         iframe.src = 'https://www.bing.com';
         iframe.setAttribute('data-tab-id', tabId); // Set the data attribute for tab id
@@ -130,27 +138,32 @@ document.addEventListener('DOMContentLoaded', function() {
         return iframe;
     }
 
-    function goBack() {
-        const activeTabId = getActiveTabId();
-        const tabState = getTabStateById(activeTabId);
-        const iframe = iframes[activeTabId];
-        if (tabState.steps.length > 1) {
-            tabState.steps.pop(); // Remove the current step
-            const previousStep = tabState.steps[tabState.steps.length - 1]; // Get the previous step
-            iframe.src = previousStep; // Navigate to the previous step
-        } else {
-            iframe.contentWindow.postMessage({ action: 'goBack' }, '*'); // If no previous step, use the browser's back button
-        }
-    }
-
-    function goForward() {
-        const activeTabId = getActiveTabId();
-        iframes[activeTabId].contentWindow.history.forward();
-    }
+    // function goBack() {
+    //     const activeTabId = getActiveTabId();
+    //     const tabState = getTabStateById(activeTabId);
+    //     const iframe = iframes[activeTabId];
+    //     if (tabState.steps.length > 1) {
+    //         tabState.steps.pop(); // Remove the current step
+    //         const previousStep = tabState.steps[tabState.steps.length - 1]; // Get the previous step
+    //         iframe.src = previousStep; // Navigate to the previous step
+    //     }
+    // }
+    
+    // function goForward() {
+    //     const activeTabId = getActiveTabId();
+    //     const tabState = getTabStateById(activeTabId);
+    //     const iframe = iframes[activeTabId];
+    //     const nextStepIndex = tabState.steps.findIndex(step => step === iframe.src) + 1;
+    //     if (nextStepIndex < tabState.steps.length) {
+    //         const nextStep = tabState.steps[nextStepIndex]; // Get the next step
+    //         iframe.src = nextStep; // Navigate to the next step
+    //     }
+    // }
+    
 
     function reloadPage() {
         const activeTabId = getActiveTabId();
-        iframes[activeTabId].contentWindow.location.reload();
+        iframes[activeTabId].src = iframes[activeTabId].src; // Reload the iframe by setting its source again
     }
 
     function goHome() {
@@ -165,13 +178,67 @@ document.addEventListener('DOMContentLoaded', function() {
         iframes[activeTabId].src = googleSearchUrl;
         // Update the title of the tab
         const tabState = getTabStateById(activeTabId);
-        console.log(tabState,query)
-        tabState.textContent = query;
-
+        tabState.title = query;
+    
         // Save the state of the tab
         tabState.steps.push(googleSearchUrl);
+    
+        // Update the browsing history with the search link
+        updateBrowsingHistory(activeTabId, googleSearchUrl);
     }
     
+    function updateBrowsingHistory(tabId, url) {
+        const tabState = getTabStateById(tabId);
+        if (tabState) {
+            const index = tabState.historyIndex;
+            // Remove forward history entries if navigating after going back
+            if (index < tabState.steps.length - 1) {
+                tabState.steps.splice(index + 1);
+            }
+            tabState.steps.push(url);
+            tabState.historyIndex = tabState.steps.length - 1;
+        }
+    }
+    
+    function goBack() {
+        const activeTabId = getActiveTabId();
+        const tabState = getTabStateById(activeTabId);
+        if (tabState.historyIndex > 0) {
+            tabState.historyIndex--;
+            iframes[activeTabId].src = tabState.steps[tabState.historyIndex];
+        } else {
+            // If already at the beginning of history, navigate to home page
+            goHome();
+        }
+    }
+    
+    
+    function goForward() {
+        const activeTabId = getActiveTabId();
+        const tabState = getTabStateById(activeTabId);
+        if (tabState.historyIndex < tabState.steps.length - 1) {
+            tabState.historyIndex++;
+            iframes[activeTabId].src = tabState.steps[tabState.historyIndex];
+        }
+    }
+    
+    
+    function closeTab(tabId) {
+        const tabIndex = tabIds.indexOf(tabId);
+        if (tabIndex > -1) {
+            tabIds.splice(tabIndex, 1); // Remove tab id from array
+            delete iframes[tabId]; // Remove iframe reference
+            tabsContainer.querySelector(`.tab[data-tab-id="${tabId}"]`).remove(); // Remove tab element
+            // If the closed tab was the active tab, switch to the next tab
+            if (tabsContainer.querySelector(`.tab.active`).getAttribute('data-tab-id') === tabId) {
+                const nextTabId = tabIds[tabIndex] || tabIds[tabIndex - 1]; // Try to select the next tab, otherwise select the previous tab
+                if (nextTabId) {
+                    selectTab(nextTabId);
+                }
+            }
+        }
+    }
+
     // Function to highlight the active tab
     function highlightActiveTab() {
         const activeTabId = getActiveTabId();
@@ -179,6 +246,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const allTabs = document.querySelectorAll('.tab');
         allTabs.forEach(tab => tab.classList.remove('active')); // Remove 'active' class from all tabs
         activeTab.classList.add('active'); // Add 'active' class to the active tab
+    }
+
+    function selectTab(tabId) {
+        const tabElement = tabsContainer.querySelector(`.tab[data-tab-id="${tabId}"]`);
+        if (tabElement) {
+            tabElement.click(); // Simulate click event to select the tab
+        }
     }
 
     function getActiveTabId() {

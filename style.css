@@ -2,7 +2,6 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-
 }
 
 #tabs-container {
@@ -10,10 +9,9 @@ html, body {
     flex-wrap: nowrap; /* Prevent wrapping */
     overflow-x: auto; /* Enable horizontal scrolling */
     overflow-y: hidden; /* Hide vertical scrollbar */
-    /* background-color: rgb(45, 44, 44); */
     color: whitesmoke;
-
 }
+
 .tab {
     padding: 7px;
     border: 0px solid transparent; /* Remove default border */
@@ -22,13 +20,11 @@ html, body {
     max-width: 250px;
     margin-bottom: 5px;
     margin-top:6px;
-    
 }
 
 .tab.active {
     background-color: black; /* Change the background color for the active tab */
 }
-
 
 #browser-bar {
     display: flex;
@@ -36,22 +32,6 @@ html, body {
     padding: 10px;
     background-color: black;
     color: white;
-}
-
-#tab-titles {
-    flex-grow: 1;
-    display: flex;
-}
-
-#tab-titles .tab-title {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-#tab-titles .tab-title.active {
-    background-color: #f0f0f0;
 }
 
 #search-input {
@@ -89,9 +69,44 @@ iframe {
     color: white;
     margin-left: 5px;
 }
-.d1{
+
+.d1 {
     display: flex;
     flex-direction: row;
     background-color: rgb(45, 44, 44);
     padding-left: 10px;
+}
+
+.close-button {
+    margin-left: 20px;
+    size: 4px;
+}
+
+#settings-dropdown {
+    position: relative;
+}
+
+#settings-select {
+    display: block;
+    top: calc(100% + 5px);
+    left: 0;
+    width: auto;
+    z-index: 1;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+#settings-select option {
+    padding: 5px 10px;
+}
+
+#settings-icon {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#settings-icon:hover {
+    background-color: #555; /* Change color on hover */
 }
